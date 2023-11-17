@@ -24,6 +24,21 @@ function App() {
   function handleOnSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
+    // if (fileName) {
+    //   fileReader.onload = function (event) {
+    //     const csvOutput = event.target.result;
+    //     return csvOutput;
+    //   };
+
+    //   fileReader.readAsText(fileName);
+    // }
+  }
+
+  function handleFile(e) {
+    e.preventDefault();
+    if (e.target.files.length > 0) {
+      setFileName(e.target.files[0].name);
+    }
     if (fileName) {
       fileReader.onload = function (event) {
         const csvOutput = event.target.result;
@@ -31,13 +46,6 @@ function App() {
       };
 
       fileReader.readAsText(fileName);
-    }
-  }
-
-  function handleFile(e) {
-    e.preventDefault();
-    if (e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
     }
   }
 
