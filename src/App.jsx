@@ -29,9 +29,11 @@ function App() {
 
     function csvFileToArray(string) {
       const arrayHeader = string.slice(0, string.indexOf("\n")).split(",");
+      arrayHeader.unshift("index");
       const stringRows = string.slice(string.indexOf("\n") + 1);
 
       tableArray = stringRows.split("\n").map((row) => row.split(","));
+      tableArray.map((value, index) => value.unshift(index + 1));
       tableArray.pop();
       tableArray.unshift(arrayHeader);
 
