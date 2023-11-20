@@ -1,12 +1,11 @@
-// import * as XLSX from "xlsx";
+import { table } from "table";
 import { Box, Button } from "@mui/material";
 import { useState } from "react";
 import { styled } from "styled-components";
-// import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 
 const ContentStyle = styled.div`
   display: flex;
-  height: 800px;
+  min-height: 900px;
   padding-top: 10px;
   background-color: #fbffdc;
   flex-direction: column-reverse;
@@ -16,36 +15,47 @@ const ContentStyle = styled.div`
 `;
 
 function App() {
-  // const [isClick, setIsClick] = useState(false);
-  // const workbook = XLSX.readFile(fileName);
+  const [file, setFile] = useState();
   const [fileName, setFileName] = useState("");
+
+  const [tableFormat, setTableFormat] = useState([]);
+  const [receivedData, setReceivedData] = useState(false);
   const fileReader = new FileReader();
+
+  let tableArray;
 
   function handleOnSubmit(e) {
     e.preventDefault();
-    e.stopPropagation();
-    // if (fileName) {
-    //   fileReader.onload = function (event) {
-    //     const csvOutput = event.target.result;
-    //     return csvOutput;
-    //   };
 
-    //   fileReader.readAsText(fileName);
-    // }
-  }
+    function csvFileToArray(string) {
+      const arrayHeader = string.slice(0, string.indexOf("\n")).split(",");
+      const stringRows = string.slice(string.indexOf("\n") + 1);
 
-  function handleFile(e) {
-    e.preventDefault();
-    if (e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
+      tableArray = stringRows.split("\n").map((row) => row.split(","));
+      tableArray.pop();
+      tableArray.unshift(arrayHeader);
+
+      setReceivedData(true);
+      setTableFormat(table(tableArray));
     }
-    if (fileName) {
+
+    if (file) {
       fileReader.onload = function (event) {
-        const csvOutput = event.target.result;
-        return csvOutput;
+        const string = event.target.result;
+        console.log(string);
+        csvFileToArray(string);
       };
 
-      fileReader.readAsText(fileName);
+      fileReader.readAsText(file);
+    }
+  }
+
+  function handleOnChange(e) {
+    e.preventDefault();
+    setFile(e.target.files[0]);
+
+    if (e.target.files.length > 0) {
+      setFileName(e.target.files[0].name);
     }
   }
 
@@ -55,15 +65,23 @@ function App() {
         <form>
           <h3>{fileName}</h3>
           <input
-            type="file"
-            id="input_dom_element"
-            onChange={handleFile}
-            accept=".ods, .xlsx, .csv"
+            type={"file"}
+            id={"csvFileInput"}
+            accept={".csv, .ods"}
+            onChange={handleOnChange}
           />
-          <Button onClick={handleOnSubmit} variant="outlined" type="submit">
+          <Button
+            onClick={(e) => {
+              handleOnSubmit(e);
+            }}
+            variant="outlined"
+            type="submit"
+          >
             {!fileName ? "Upload" : fileName ? "Next" : "Upload"}
           </Button>
         </form>
+
+        <div>{receivedData && <pre>{tableFormat}</pre>} </div>
       </Box>
     </ContentStyle>
   );
